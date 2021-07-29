@@ -5,15 +5,15 @@ val Version = new {
   val Scala3 = "3.0.1"
 }
 
+ThisBuild / developers := List(Developer("taig", "Niklas Klein", "mail@taig.io", url("https://taig.io/")))
+ThisBuild / dynverVTagPrefix := false
+ThisBuild / homepage := Some(url("https://github.com/taig/scala-linguist/"))
+ThisBuild / licenses := List("MIT" -> url("https://raw.githubusercontent.com/taig/scala-linguist/main/LICENSE"))
 ThisBuild / scalaVersion := Version.Scala2
 ThisBuild / crossScalaVersions := Version.Scala2 :: Version.Scala3 :: Nil
 
-enablePlugins(GitVersioning)
-
 noPublishSettings
 name := "scala-linguist"
-git.useGitDescribe := true
-git.formattedShaVersion := git.formattedShaVersion.value.map(_.take(7))
 
 lazy val core = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
