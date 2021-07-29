@@ -12,6 +12,8 @@ ThisBuild / licenses := List("MIT" -> url("https://raw.githubusercontent.com/tai
 ThisBuild / scalaVersion := Version.Scala2
 ThisBuild / crossScalaVersions := Version.Scala2 :: Version.Scala3 :: Nil
 
+enablePlugins(GitVersioning)
+
 noPublishSettings
 name := "scala-linguist"
 
