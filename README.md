@@ -1,6 +1,6 @@
-# Java Linguist
+# Scala Linguist
 
-A wrapper around [github/linguist](https://github.com/github/linguist) based on GraalVM's [TruffleRuby](https://www.graalvm.org/reference-manual/ruby/)
+A Scala wrapper around [github/linguist](https://github.com/github/linguist) based on GraalVM's [TruffleRuby](https://www.graalvm.org/reference-manual/ruby/)
 
 ## Prerequisites
 
