@@ -5,41 +5,27 @@ val Version = new {
   val Scala3 = "3.0.1"
 }
 
-val javaOnly = Def.settings(
-  autoScalaLibrary := false,
-  crossPaths := false,
-  crossScalaVersions := Nil
-)
-
-ThisBuild / scalaVersion := Version.Scala3
+ThisBuild / scalaVersion := Version.Scala2
+ThisBuild / crossScalaVersions := Version.Scala2 :: Version.Scala3 :: Nil
 
 noPublishSettings
 
 lazy val core = project
   .in(file("modules/core"))
-  .settings(javaOnly)
   .settings(
-    name := "java-linguist-core"
-  )
-
-lazy val scala = project
-  .in(file("modules/scala"))
-  .settings(
-    crossScalaVersions := Version.Scala2 :: Version.Scala3 :: Nil,
+    name := "scala-linguist",
     libraryDependencies ++=
-      "org.typelevel" %% "cats-effect" % Version.CatsEffect ::
-        Nil,
-    name := "java-linguist-scala"
+      "org.typelevel" %% "cats-effect" % Version.CatsEffect % "test" ::
+        "org.typelevel" %% "munit-cats-effect-3" % Version.MunitCatsEffect % "test" ::
+        Nil
   )
-  .dependsOn(core)
 
 lazy val truffle = project
   .in(file("modules/truffle"))
-  .settings(javaOnly)
   .settings(
+    name := "scala-linguist-truffle",
     libraryDependencies ++=
-      "org.typelevel" %% "munit-cats-effect-3" % Version.MunitCatsEffect % "test" ::
-        Nil,
-    name := "java-linguist-truffle"
+      "org.typelevel" %% "cats-effect" % Version.CatsEffect ::
+        Nil
   )
-  .dependsOn(core, scala % "test->test")
+  .dependsOn(core % "compile->compile;test->test")
