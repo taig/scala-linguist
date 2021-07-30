@@ -30,7 +30,7 @@ final class GraalVmLinguist[F[_]](lock: Semaphore[F])(context: Context)(implicit
 }
 
 object GraalVmLinguist {
-  def apply[F[_]](context: Context)(implicit F: Async[F]): F[GraalVmLinguist[F]] =
+  def apply[F[_]](context: Context)(implicit F: Async[F]): F[Linguist[F]] =
     Semaphore[F](1).map(new GraalVmLinguist[F](_)(context))
 
   def default[F[_]](implicit F: Async[F]): Resource[F, Linguist[F]] = {
