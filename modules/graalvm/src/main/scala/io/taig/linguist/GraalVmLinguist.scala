@@ -7,7 +7,7 @@ import java.nio.file.Path
 import java.util.concurrent.{Executors, TimeUnit}
 import scala.concurrent.ExecutionContext
 
-final class TruffleLinguist[F[_]](context: Context, execution: ExecutionContext)(implicit F: Async[F])
+final class GraalVmLinguist[F[_]](context: Context, execution: ExecutionContext)(implicit F: Async[F])
     extends Linguist[F] {
   override def detect(path: Path, content: String): F[Option[String]] = {
     val fa = F.delay {
@@ -32,7 +32,7 @@ final class TruffleLinguist[F[_]](context: Context, execution: ExecutionContext)
   }
 }
 
-object TruffleLinguist {
+object GraalVmLinguist {
   def apply[F[_]](context: Context)(implicit F: Async[F]): Resource[F, Linguist[F]] =
     Resource
       .make(F.delay(Executors.newSingleThreadExecutor())) { executor =>
@@ -43,7 +43,7 @@ object TruffleLinguist {
         }
       }
       .map(ExecutionContext.fromExecutorService)
-      .map(new TruffleLinguist[F](context, _))
+      .map(new GraalVmLinguist[F](context, _))
 
   def default[F[_]](implicit F: Async[F]): Resource[F, Linguist[F]] = {
     val context = F.delay {
@@ -55,6 +55,6 @@ object TruffleLinguist {
         .build()
     }
 
-    Resource.fromAutoCloseable(context).flatMap(TruffleLinguist[F])
+    Resource.fromAutoCloseable(context).flatMap(GraalVmLinguist[F])
   }
 }
