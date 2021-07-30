@@ -1,16 +1,15 @@
 package io.taig.linguist;
 
-import cats.effect.{Async, Resource}
+import cats.effect.std.Semaphore
+import cats.effect.{Async, Resource, Sync}
+import cats.syntax.all._
 import org.graalvm.polyglot.{Context, PolyglotAccess}
 
 import java.nio.file.Path
-import java.util.concurrent.{Executors, TimeUnit}
-import scala.concurrent.ExecutionContext
 
-final class GraalVmLinguist[F[_]](context: Context, execution: ExecutionContext)(implicit F: Async[F])
-    extends Linguist[F] {
-  override def detect(path: Path, content: String): F[Option[String]] = {
-    val fa = F.delay {
+final class GraalVmLinguist[F[_]](lock: Semaphore[F])(context: Context)(implicit F: Sync[F]) extends Linguist[F] {
+  override def detect(path: Path, content: String): F[Option[String]] = lock.permit.surround {
+    F.delay {
       val bindings = context.getPolyglotBindings
       bindings.putMember("path", path.toString)
       bindings.putMember("content", content)
@@ -27,23 +26,12 @@ final class GraalVmLinguist[F[_]](context: Context, execution: ExecutionContext)
       else if (result.isString) Some(result.asString())
       else throw new IllegalStateException("Unexpected return type")
     }
-
-    F.evalOn(fa, execution)
   }
 }
 
 object GraalVmLinguist {
-  def apply[F[_]](context: Context)(implicit F: Async[F]): Resource[F, Linguist[F]] =
-    Resource
-      .make(F.delay(Executors.newSingleThreadExecutor())) { executor =>
-        F.delay {
-          executor.shutdown()
-          executor.awaitTermination(10, TimeUnit.SECONDS)
-          ()
-        }
-      }
-      .map(ExecutionContext.fromExecutorService)
-      .map(new GraalVmLinguist[F](context, _))
+  def apply[F[_]](context: Context)(implicit F: Async[F]): F[GraalVmLinguist[F]] =
+    Semaphore[F](1).map(new GraalVmLinguist[F](_)(context))
 
   def default[F[_]](implicit F: Async[F]): Resource[F, Linguist[F]] = {
     val context = F.delay {
@@ -55,6 +43,6 @@ object GraalVmLinguist {
         .build()
     }
 
-    Resource.fromAutoCloseable(context).flatMap(GraalVmLinguist[F])
+    Resource.fromAutoCloseable(context).evalMap(GraalVmLinguist[F])
   }
 }
