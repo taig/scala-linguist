@@ -1,7 +1,7 @@
 # Scala Linguist
 
 [![CI & CD](https://github.com/taig/scala-linguist/actions/workflows/main.yml/badge.svg)](https://github.com/taig/scala-linguist/actions/workflows/main.yml)
-![Maven Central](https://img.shields.io/maven-central/v/io.taig/scala-linguist-core)
+[![Maven Central](https://img.shields.io/maven-central/v/io.taig/scala-linguist-core_3)](https://index.scala-lang.org/taig/scala-linguist/)
 
 > A Scala wrapper around [github/linguist](https://github.com/github/linguist) based on GraalVM's [TruffleRuby](https://www.graalvm.org/reference-manual/ruby/)
 
