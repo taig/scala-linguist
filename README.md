@@ -35,4 +35,20 @@ libraryDependencies ++=
 Currently, this library only exposes a single method, allowing to detect the language when given a path and source code.
 
 ```scala
+import cats.effect.{IO, IOApp}
+import io.taig.linguist.GraalVmLinguist
+
+import java.nio.file.Paths
+
+object App extends IOApp.Simple {
+  override def run: IO[Unit] =
+    GraalVmLinguist.default[IO]
+      .use(_.detect(Paths.get("Main.scala"), "trait Foo {}"))
+      .flatMap(IO.println)
+}
+```
+
+```
+sbt> run 
+Some(Scala)
 ```
