@@ -13,8 +13,6 @@ ThisBuild / licenses := List("MIT" -> url("https://raw.githubusercontent.com/tai
 ThisBuild / scalaVersion := Version.Scala2
 ThisBuild / versionScheme := Some("early-semver")
 
-enablePlugins(GitVersioning)
-
 noPublishSettings
 name := "scala-linguist"
 
