@@ -9,7 +9,7 @@ import java.nio.file.Path
 
 final class GraalVmLinguist[F[_]](lock: Semaphore[F])(context: Context)(implicit F: Sync[F]) extends Linguist[F] {
   override def detect(path: Path, content: String): F[Option[String]] = lock.permit.surround {
-    F.delay {
+    F.blocking {
       val bindings = context.getPolyglotBindings
       bindings.putMember("path", path.toString)
       bindings.putMember("content", content)
