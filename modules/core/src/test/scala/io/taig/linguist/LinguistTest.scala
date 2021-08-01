@@ -9,22 +9,28 @@ import java.nio.file.Paths
 abstract class LinguistTest extends CatsEffectSuite {
   def linguist: Resource[IO, Linguist[IO]]
 
-  test("Java") {
+  test("Detect with code: Java") {
     linguist
       .use(_.detect(Paths.get("Main.java"), HelloWord.Java))
       .map(obtained => assertEquals(obtained, expected = Some("Java")))
   }
 
-  test("JavaScript") {
+  test("Detect with code: JavaScript") {
     linguist
       .use(_.detect(Paths.get("main.js"), HelloWord.JavaScript))
       .map(obtained => assertEquals(obtained, expected = Some("JavaScript")))
   }
 
-  test("Scala") {
+  test("Detect with code: Scala") {
     linguist
       .use(_.detect(Paths.get("Main.scala"), HelloWord.Scala))
       .map(obtained => assertEquals(obtained, expected = Some("Scala")))
+  }
+
+  test("Detect with path: Java") {
+    linguist
+      .use(_.detect(Paths.get("Main.java")))
+      .map(obtained => assertEquals(obtained, expected = List("Java")))
   }
 
   test("concurrent access") {

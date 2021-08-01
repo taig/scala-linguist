@@ -27,6 +27,33 @@ final class GraalVmLinguist[F[_]](lock: Semaphore[F])(context: Context)(implicit
       else throw new IllegalStateException("Unexpected return type")
     }
   }
+
+  override def detect(path: Path): F[List[String]] = lock.permit.surround {
+    F.blocking {
+      val bindings = context.getPolyglotBindings
+      bindings.putMember("path", path.toString)
+
+      val result = context.eval(
+        "ruby",
+        s"""require 'linguist'
+           |
+           |Linguist::Language
+           |  .find_by_extension(Polyglot.import('path'))
+           |  .map { |language| language.name }""".stripMargin
+      )
+
+      val size = result.getArraySize
+      val builder = List.newBuilder[String]
+      var index = 0
+
+      while (index < size) {
+        builder += result.getArrayElement(index.toLong).asString()
+        index += 1
+      }
+
+      builder.result()
+    }
+  }
 }
 
 object GraalVmLinguist {
