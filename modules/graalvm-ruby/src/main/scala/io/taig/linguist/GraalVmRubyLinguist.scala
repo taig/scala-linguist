@@ -7,7 +7,7 @@ import org.graalvm.polyglot.{Context, PolyglotAccess}
 
 import java.nio.file.Path
 
-final class GraalVmLinguist[F[_]](lock: Semaphore[F])(context: Context)(implicit F: Sync[F]) extends Linguist[F] {
+final class GraalVmRubyLinguist[F[_]](lock: Semaphore[F])(context: Context)(implicit F: Sync[F]) extends Linguist[F] {
   override def detect(path: Path, content: String): F[Option[String]] = lock.permit.surround {
     F.blocking {
       val bindings = context.getPolyglotBindings
@@ -56,9 +56,9 @@ final class GraalVmLinguist[F[_]](lock: Semaphore[F])(context: Context)(implicit
   }
 }
 
-object GraalVmLinguist {
+object GraalVmRubyLinguist {
   def apply[F[_]](context: Context)(implicit F: Async[F]): F[Linguist[F]] =
-    Semaphore[F](1).map(new GraalVmLinguist[F](_)(context))
+    Semaphore[F](1).map(new GraalVmRubyLinguist[F](_)(context))
 
   def default[F[_]](implicit F: Async[F]): Resource[F, Linguist[F]] = {
     val context = F.delay {
@@ -70,6 +70,6 @@ object GraalVmLinguist {
         .build()
     }
 
-    Resource.fromAutoCloseable(context).evalMap(GraalVmLinguist[F])
+    Resource.fromAutoCloseable(context).evalMap(GraalVmRubyLinguist[F])
   }
 }
