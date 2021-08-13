@@ -42,7 +42,7 @@ import java.nio.file.Paths
 
 object App extends IOApp.Simple {
   override def run: IO[Unit] =
-    GraalVmLinguist.default[IO]
+    GraalVmRubyLinguist.default[IO]
       .use(_.detect(Paths.get("Main.scala"), "trait Foo {}"))
       .flatMap(IO.println)
 }
@@ -63,7 +63,7 @@ import java.nio.file.Paths
 
 object App extends IOApp.Simple {
   override def run: IO[Unit] =
-    GraalVmLinguist.default[IO]
+    GraalVmRubyLinguist.default[IO]
       .use(_.detect(Paths.get("Main.scala")))
       .flatMap(IO.println)
 }
