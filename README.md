@@ -26,7 +26,7 @@ gem install github-linguist
 ```scala
 libraryDependencies ++=
   "io.taig" %% "scala-linguist-core" % "x.y.z" :: 
-  "io.taig" %% "scala-linguist-graalvm" % "x.y.z" ::
+  "io.taig" %% "scala-linguist-graalvm-ruby" % "x.y.z" ::
   Nil
 ```
 

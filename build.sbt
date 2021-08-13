@@ -27,10 +27,10 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
         Nil
   )
 
-lazy val graalvm = project
-  .in(file("modules/graalvm"))
+lazy val graalvmRuby = project
+  .in(file("modules/graalvm-ruby"))
   .settings(
-    name := "scala-linguist-graalvm",
+    name := "scala-linguist-graalvm-ruby",
     libraryDependencies ++=
       "org.typelevel" %% "cats-effect" % Version.CatsEffect ::
         Nil
