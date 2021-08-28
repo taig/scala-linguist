@@ -16,10 +16,10 @@ final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Context])(implicit F
 
       val result = context.eval(
         "ruby",
-        s"""require 'linguist'
-           |
-           |blob = Linguist::Blob.new(Polyglot.import('path'), Polyglot.import('content'))
-           |Linguist.detect(blob)&.name""".stripMargin
+        """require 'linguist'
+          |
+          |blob = Linguist::Blob.new(Polyglot.import('path'), Polyglot.import('content'))
+          |Linguist.detect(blob)&.name""".stripMargin
       )
 
       if (result.isNull) None
@@ -35,11 +35,11 @@ final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Context])(implicit F
 
       val result = context.eval(
         "ruby",
-        s"""require 'linguist'
-           |
-           |Linguist::Language
-           |  .find_by_extension(Polyglot.import('path'))
-           |  .map { |language| language.name }""".stripMargin
+        """require 'linguist'
+          |
+          |Linguist::Language
+          |  .find_by_extension(Polyglot.import('path'))
+          |  .map { |language| language.name }""".stripMargin
       )
 
       val size = result.getArraySize
@@ -57,10 +57,10 @@ final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Context])(implicit F
 }
 
 object GraalVmRubyLinguist {
-  def apply[F[_]](context: Context)(implicit F: Async[F]): F[Linguist[F]] =
+  def apply[F[_]: Async](context: Context): F[Linguist[F]] =
     Semaphore[F](1).map(lock => new GraalVmRubyLinguist[F](lock.permit.as(context)))
 
-  def default[F[_]](implicit F: Async[F]): Resource[F, Linguist[F]] =
+  def default[F[_]: Async]: Resource[F, Linguist[F]] =
     context[F].evalMap(GraalVmRubyLinguist[F])
 
   def pooled[F[_]: Async](size: Int): Resource[F, Linguist[F]] =
