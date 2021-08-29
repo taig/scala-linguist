@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.6
+
+_2021-08-29_
+
+* [#2] Pooled instance (#3)
+* Upgrade to cats-effect 3.2.3
+* Add Dockerfile
+
 ## 0.0.5
 
 _2021-08-13_
