@@ -13,6 +13,7 @@ ThisBuild / homepage := Some(url("https://github.com/taig/scala-linguist/"))
 ThisBuild / licenses := List("MIT" -> url("https://raw.githubusercontent.com/taig/scala-linguist/main/LICENSE"))
 ThisBuild / scalaVersion := Version.Scala2
 ThisBuild / versionScheme := Some("early-semver")
+ThisBuild / Test / fork := true
 
 noPublishSettings
 name := "scala-linguist"
