@@ -1,9 +1,9 @@
 val Version = new {
-  val CatsEffect = "3.2.5"
+  val CatsEffect = "3.2.7"
   val Munit = "0.7.29"
   val MunitCatsEffect = "1.0.5"
   val Scala2 = "2.13.6"
-  val Scala3 = "3.0.1"
+  val Scala3 = "3.0.2"
 }
 
 ThisBuild / crossScalaVersions := Version.Scala2 :: Version.Scala3 :: Nil
@@ -35,7 +35,6 @@ lazy val graalvmRuby = project
     name := "scala-linguist-graalvm-ruby",
     libraryDependencies ++=
       "org.typelevel" %% "cats-effect" % Version.CatsEffect ::
-        Nil,
-    Test / fork := true
+        Nil
   )
   .dependsOn(core.jvm % "compile->compile;test->test")
