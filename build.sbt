@@ -35,6 +35,7 @@ lazy val graalvmRuby = project
     name := "scala-linguist-graalvm-ruby",
     libraryDependencies ++=
       "org.typelevel" %% "cats-effect" % Version.CatsEffect ::
-        Nil
+        Nil,
+    IntegrationTest / fork := true
   )
   .dependsOn(core.jvm % "compile->compile;test->test")
