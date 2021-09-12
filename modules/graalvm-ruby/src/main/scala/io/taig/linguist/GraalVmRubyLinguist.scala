@@ -76,7 +76,8 @@ object GraalVmRubyLinguist {
 
       List
         .fill(size)(context[F])
-        .parTraverse(_.evalTap(queue.offer))
+        .parTraverse_(_.evalMap(queue.offer))
+        .start
         .as(new GraalVmRubyLinguist[F](contexts))
     }
 
