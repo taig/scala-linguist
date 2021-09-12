@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.8
+
+_2021-09-12_
+
+ * Load linguist gem as part of context initialization
+ * Upgrade to cats-effect 3.2.8
+ * Upgrade to munit 0.7.29
+
 ## 0.0.7
 
 _2021-08-30_
