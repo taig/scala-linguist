@@ -34,9 +34,9 @@ abstract class LinguistTest extends CatsEffectSuite {
   }
 
   test("concurrent access") {
-    val java = List.fill(100)(("Main.java", HelloWord.Java))
-    val javascript = List.fill(100)(("main.js", HelloWord.JavaScript))
-    val scala = List.fill(100)(("Main.scala", HelloWord.Scala))
+    val java = List.fill(500)(("Main.java", HelloWord.Java))
+    val javascript = List.fill(500)(("main.js", HelloWord.JavaScript))
+    val scala = List.fill(500)(("Main.scala", HelloWord.Scala))
     val all = java ++ javascript ++ scala
 
     linguist
@@ -48,7 +48,7 @@ abstract class LinguistTest extends CatsEffectSuite {
       .map { obtained =>
         assertEquals(
           obtained,
-          expected = List.fill(100)("Java") ++ List.fill(100)("JavaScript") ++ List.fill(100)("Scala")
+          expected = List.fill(500)("Java") ++ List.fill(500)("JavaScript") ++ List.fill(500)("Scala")
         )
       }
   }
