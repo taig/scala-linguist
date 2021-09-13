@@ -14,8 +14,13 @@ ThisBuild / licenses := List("MIT" -> url("https://raw.githubusercontent.com/tai
 ThisBuild / scalaVersion := Version.Scala2
 ThisBuild / versionScheme := Some("early-semver")
 
-noPublishSettings
-name := "scala-linguist"
+lazy val root = project
+  .in(file("."))
+  .settings(noPublishSettings)
+  .settings(
+    name := "scala-linguist"
+  )
+  .aggregate(core.jvm, core.js, graalvmRuby, benchmarks)
 
 lazy val core = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
@@ -38,3 +43,12 @@ lazy val graalvmRuby = project
         Nil
   )
   .dependsOn(core.jvm % "compile->compile;test->test")
+
+lazy val benchmarks = project
+  .in(file("modules/benchmarks"))
+  .enablePlugins(JmhPlugin)
+  .settings(noPublishSettings)
+  .settings(
+    name := "scala-linguist-benchmarks"
+  )
+  .dependsOn(graalvmRuby)

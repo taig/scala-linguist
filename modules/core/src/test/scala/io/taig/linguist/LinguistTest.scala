@@ -27,6 +27,12 @@ abstract class LinguistTest extends CatsEffectSuite {
       .map(obtained => assertEquals(obtained, expected = Some("Scala")))
   }
 
+  test("Detect with code: MATLAB") {
+    linguist
+      .use(_.detect(Paths.get("Main.m"), HelloWord.MatLab))
+      .map(obtained => assertEquals(obtained, expected = Some("MATLAB")))
+  }
+
   test("Detect with path: Java") {
     linguist
       .use(_.detect(Paths.get("Main.java")))

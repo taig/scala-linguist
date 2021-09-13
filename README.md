@@ -73,3 +73,9 @@ object App extends IOApp.Simple {
 sbt> run 
 List(Scala)
 ```
+
+## Benchmarks
+
+```shell
+> benchmarks/Jmh/run -wi 5 -i 5 -f1 -t1
+```

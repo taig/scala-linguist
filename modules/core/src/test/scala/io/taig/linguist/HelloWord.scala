@@ -9,6 +9,11 @@ object HelloWord {
 
   val JavaScript = """console.log("Hello World");"""
 
+  val MatLab =
+    """% Hello World in MATLAB.
+      |
+      |disp('Hello World');""".stripMargin
+
   val Scala = """object HelloWorld extends App {
                 |  println("Hello world!")
                 |}""".stripMargin
