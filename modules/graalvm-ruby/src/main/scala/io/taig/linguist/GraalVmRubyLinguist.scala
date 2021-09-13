@@ -5,9 +5,29 @@ import java.nio.file.Path
 import cats.effect.std.{Queue, Semaphore}
 import cats.effect.{Async, Resource, Sync}
 import cats.syntax.all._
-import org.graalvm.polyglot.{Context, PolyglotAccess}
+import org.graalvm.polyglot.{Context, PolyglotAccess, Value}
 
 final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Context])(implicit F: Sync[F]) extends Linguist[F] {
+  override val languages: F[List[Linguist.Language]] = contexts.use { context =>
+    F.blocking {
+      val result = context.eval("ruby", "Linguist::Language.all")
+
+      val builder = List.newBuilder[Linguist.Language]
+      val size = result.getArraySize
+      var index = 0
+
+      while (index < size) {
+        val value = result.getArrayElement(index.toLong)
+        val name = value.getMember("name").execute().asString()
+        val extensions = unsafeToList(value.getMember("extensions").execute()).map(_.dropWhile(_ == '.'))
+        builder += Linguist.Language(name, extensions)
+        index += 1
+      }
+
+      builder.result()
+    }
+  }
+
   override def detect(path: Path, content: String): F[Option[String]] = contexts.use { context =>
     F.blocking {
       val bindings = context.getPolyglotBindings
@@ -31,19 +51,26 @@ final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Context])(implicit F
       val bindings = context.getPolyglotBindings
       bindings.putMember("path", path.toString)
 
-      val result = context.eval(
+      val result: Value = context.eval(
         "ruby",
         """Linguist::Language
           |  .find_by_extension(Polyglot.import('path'))
           |  .map { |language| language.name }""".stripMargin
       )
 
-      val size = result.getArraySize
+      unsafeToList(result)
+    }
+  }
+
+  def unsafeToList[G[_]](value: Value): List[String] = {
+    val size = value.getArraySize
+    if (size == 0) Nil
+    else {
       val builder = List.newBuilder[String]
       var index = 0
 
       while (index < size) {
-        builder += result.getArrayElement(index.toLong).asString()
+        builder += value.getArrayElement(index.toLong).asString()
         index += 1
       }
 

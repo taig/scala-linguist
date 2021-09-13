@@ -1,6 +1,7 @@
 package io.taig.linguist
 
 import cats.effect.{IO, Resource}
+import cats.syntax.all._
 import cats.syntax.parallel.catsSyntaxParallelTraverse1
 import munit.CatsEffectSuite
 
@@ -8,6 +9,20 @@ import java.nio.file.Paths
 
 abstract class LinguistTest extends CatsEffectSuite {
   def linguist: Resource[IO, Linguist[IO]]
+
+  test("Roundtrip") {
+    linguist.use { linguist =>
+      linguist.languages.flatMap { languages =>
+        languages.traverse { language =>
+          language.extensions.traverse { extension =>
+            linguist.detect(Paths.get(s"Main.$extension")).map { languages =>
+              assert(languages.contains(language.name))
+            }
+          }
+        }
+      }
+    }
+  }
 
   test("Detect with code: Java") {
     linguist
