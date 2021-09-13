@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.10
+
+_2021-09-13_
+
+ * Add Linguist.languages
+ * Add benchmarks module
+
 ## 0.0.9
 
 _2021-09-12_
