@@ -5,7 +5,7 @@ import java.nio.file.Path
 import cats.effect.std.{Queue, Semaphore}
 import cats.effect.{Async, Resource, Sync}
 import cats.syntax.all._
-import org.graalvm.polyglot.{Context, PolyglotAccess, Value}
+import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, Value}
 
 final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Context])(implicit F: Sync[F]) extends Linguist[F] {
   override val languages: F[List[Linguist.Language]] = contexts.use { context =>
@@ -95,27 +95,32 @@ object GraalVmRubyLinguist {
   def apply[F[_]: Async](context: Context): F[Linguist[F]] =
     Semaphore[F](1).map(lock => new GraalVmRubyLinguist[F](lock.permit.as(context)))
 
-  def default[F[_]: Async]: Resource[F, Linguist[F]] = context[F].evalMap(GraalVmRubyLinguist[F])
+  def default[F[_]: Async]: Resource[F, Linguist[F]] = context[F](engine = None).evalMap(GraalVmRubyLinguist[F])
 
   def pooled[F[_]: Async](size: Int): Resource[F, Linguist[F]] =
     Resource.eval(Queue.unbounded[F, Context]).flatMap { queue =>
       val contexts = Resource.make(queue.take)(queue.offer)
+      val engine = Engine.create()
+      val resource = context(Some(engine))
 
       List
-        .fill(size)(context[F])
+        .fill(size)(resource)
         .parTraverse_(_.evalMap(queue.offer))
         .start
         .as(new GraalVmRubyLinguist[F](contexts))
     }
 
-  def context[F[_]](implicit F: Sync[F]): Resource[F, Context] = Resource.fromAutoCloseable {
+  def context[F[_]](engine: Option[Engine])(implicit F: Sync[F]): Resource[F, Context] = Resource.fromAutoCloseable {
     F.blocking {
-      val context = Context
+      val builder = Context
         .newBuilder("ruby")
         .allowIO(true)
         .allowNativeAccess(true)
         .allowPolyglotAccess(PolyglotAccess.ALL)
-        .build()
+
+      engine.foreach(builder.engine)
+
+      val context = builder.build()
 
       context.eval("ruby", "require 'linguist'")
       context

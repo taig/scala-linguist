@@ -51,3 +51,12 @@ object DetectBenchmark {
       |
       |disp('Hello World');""".stripMargin
 }
+
+class GraalVmRubyDefaultDetectBenchmark extends DetectBenchmark {
+  override val linguist: Resource[IO, Linguist[IO]] = GraalVmRubyLinguist.default[IO]
+}
+
+class GraalVmRubyPooledDetectBenchmark extends DetectBenchmark {
+  override val linguist: Resource[IO, Linguist[IO]] = GraalVmRubyLinguist.pooled[IO](size = 4)
+}
+

@@ -77,5 +77,5 @@ List(Scala)
 ## Benchmarks
 
 ```shell
-> benchmarks/Jmh/run -wi 5 -i 5 -f1 -t1
+> benchmarks/Jmh/run -wi 10 -i 5 -f1 -t4
 ```
