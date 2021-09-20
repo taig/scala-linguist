@@ -22,7 +22,9 @@ jobs:
           graalvm: '21.2.0'
           java: 'java11'
       - name: Install dependencies
-        run: sudo apt-get install cmake pkg-config libicu-dev zlib1g-dev libcurl4-openssl-dev libssl-dev ruby-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install cmake pkg-config libicu-dev zlib1g-dev libcurl4-openssl-dev libssl-dev ruby-dev
       - name: Install ruby
         run: gu install ruby && ${JAVA_HOME}/languages/ruby/lib/truffle/post_install_hook.sh
       - name: Install linguist
