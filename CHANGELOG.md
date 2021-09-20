@@ -1,9 +1,9 @@
 # Changelog
 
-## 0.0.11
+## 0.0.12
 
-_2021-09-15_
-
+_2021-09-20_
+ * 
  * Reuse context engine in pooled instances
 
 ## 0.0.10

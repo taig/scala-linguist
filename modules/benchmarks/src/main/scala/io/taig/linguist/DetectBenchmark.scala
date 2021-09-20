@@ -59,4 +59,3 @@ class GraalVmRubyDefaultDetectBenchmark extends DetectBenchmark {
 class GraalVmRubyPooledDetectBenchmark extends DetectBenchmark {
   override val linguist: Resource[IO, Linguist[IO]] = GraalVmRubyLinguist.pooled[IO](size = 4)
 }
-
