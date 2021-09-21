@@ -1,56 +1,51 @@
 package io.taig.linguist
 
-import cats.effect.{IO, Resource}
+import java.nio.file.Paths
+
+import cats.effect.IO
 import cats.syntax.all._
 import cats.syntax.parallel.catsSyntaxParallelTraverse1
 import munit.CatsEffectSuite
 
-import java.nio.file.Paths
-
 abstract class LinguistTest extends CatsEffectSuite {
-  def linguist: Resource[IO, Linguist[IO]]
+  def linguist: Fixture[Linguist[IO]]
+
+  override def munitFixtures: Seq[Fixture[_]] = List(linguist)
 
   test("Roundtrip") {
-    linguist.use { linguist =>
-      linguist.languages.flatMap { languages =>
+      linguist().languages.flatMap { languages =>
         languages.traverse { language =>
           language.extensions.traverse { extension =>
-            linguist.detect(Paths.get(s"Main.$extension")).map { languages =>
+            linguist().detect(Paths.get(s"Main.$extension")).map { languages =>
               assert(languages.contains(language.name))
             }
           }
         }
       }
-    }
   }
 
   test("Detect with code: Java") {
-    linguist
-      .use(_.detect(Paths.get("Main.java"), HelloWord.Java))
+    linguist().detect(Paths.get("Main.java"), HelloWord.Java)
       .map(obtained => assertEquals(obtained, expected = Some("Java")))
   }
 
   test("Detect with code: JavaScript") {
-    linguist
-      .use(_.detect(Paths.get("main.js"), HelloWord.JavaScript))
+    linguist().detect(Paths.get("main.js"), HelloWord.JavaScript)
       .map(obtained => assertEquals(obtained, expected = Some("JavaScript")))
   }
 
   test("Detect with code: Scala") {
-    linguist
-      .use(_.detect(Paths.get("Main.scala"), HelloWord.Scala))
+    linguist().detect(Paths.get("Main.scala"), HelloWord.Scala)
       .map(obtained => assertEquals(obtained, expected = Some("Scala")))
   }
 
   test("Detect with code: MATLAB") {
-    linguist
-      .use(_.detect(Paths.get("Main.m"), HelloWord.MatLab))
+    linguist().detect(Paths.get("Main.m"), HelloWord.MatLab)
       .map(obtained => assertEquals(obtained, expected = Some("MATLAB")))
   }
 
   test("Detect with path: Java") {
-    linguist
-      .use(_.detect(Paths.get("Main.java")))
+    linguist().detect(Paths.get("Main.java"))
       .map(obtained => assertEquals(obtained, expected = List("Java")))
   }
 
@@ -60,12 +55,9 @@ abstract class LinguistTest extends CatsEffectSuite {
     val scala = List.fill(500)(("Main.scala", HelloWord.Scala))
     val all = java ++ javascript ++ scala
 
-    linguist
-      .use { linguist =>
         all
-          .parTraverse { case (file, content) => linguist.detect(Paths.get(file), content) }
+          .parTraverse { case (file, content) => linguist().detect(Paths.get(file), content) }
           .map(_.collect { case Some(language) => language })
-      }
       .map { obtained =>
         assertEquals(
           obtained,
