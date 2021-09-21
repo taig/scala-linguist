@@ -97,17 +97,17 @@ object GraalVmRubyLinguist {
 
   def default[F[_]: Async]: Resource[F, Linguist[F]] = context[F](engine = None).evalMap(GraalVmRubyLinguist[F])
 
-  def pooled[F[_]: Async](size: Int): Resource[F, Linguist[F]] =
+  def pooled[F[_]](size: Int)(implicit F: Async[F]): Resource[F, Linguist[F]] =
     Resource.eval(Queue.unbounded[F, Context]).flatMap { queue =>
       val contexts = Resource.make(queue.take)(queue.offer)
-      val engine = Engine.create()
-      val resource = context(Some(engine))
 
-      List
-        .fill(size)(resource)
-        .parTraverse_(_.evalMap(queue.offer))
-        .start
-        .as(new GraalVmRubyLinguist[F](contexts))
+      Resource.fromAutoCloseable(F.delay(Engine.create())).flatMap { engine =>
+        List
+          .fill(size)(context(Some(engine)))
+          .parTraverse_(_.evalMap(queue.offer))
+          .start
+          .as(new GraalVmRubyLinguist[F](contexts))
+      }
     }
 
   def context[F[_]](engine: Option[Engine])(implicit F: Sync[F]): Resource[F, Context] = Resource.fromAutoCloseable {

@@ -1,9 +1,13 @@
 package io.taig.linguist
 
+import scala.concurrent.duration._
+
 import cats.effect.{IO, Resource}
 
 abstract class GraalVmRubyLinguistIntegrationTest extends LinguistTest {
   def resource: Resource[IO, Linguist[IO]]
+
+  override def munitTimeout: Duration = 60.seconds
 
   override val linguist: Fixture[Linguist[IO]] = new Fixture[Linguist[IO]]("linguist") {
     var instance: Linguist[IO] = _
