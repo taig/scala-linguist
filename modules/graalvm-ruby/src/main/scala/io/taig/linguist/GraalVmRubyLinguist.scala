@@ -92,7 +92,7 @@ object GraalVmRubyLinguist {
   def apply[F[_]: Async](context: Context): F[Linguist[F]] =
     Semaphore[F](1).map(lock => new GraalVmRubyLinguist[F](lock.permit.as(context)))
 
-  def default[F[_]: Async]: Resource[F, Linguist[F]] = context[F].evalMap(GraalVmRubyLinguist[F])
+  def default[F[_]: Async]: Resource[F, Linguist[F]] = pooled(1)
 
   def pooled[F[_]: Async](size: Int): Resource[F, Linguist[F]] =
     Resource.eval(Queue.unbounded[F, Context]).flatMap { queue =>
