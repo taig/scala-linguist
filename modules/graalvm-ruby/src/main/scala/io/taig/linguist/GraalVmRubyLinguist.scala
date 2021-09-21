@@ -81,14 +81,19 @@ final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Either[Throwable, Co
 }
 
 object GraalVmRubyLinguist {
-  // This is a hack around context initialization issues that seem to be caused by sbt's class loader layering
+  // This is a costly hack around context initialization issues that seem to be caused by sbt's class loader layering
   // mechanism when executing tests
-  try Context.create("ruby").close()
-  catch {
-    case exception: Throwable =>
-      new IllegalStateException("Failed to initialize polyglot ruby context", exception)
-        .printStackTrace(System.err)
-  }
+  new Thread() {
+    override def run(): Unit = try {
+      val context = Context.create("ruby")
+      context.initialize("ruby")
+      context.close()
+    } catch {
+      case exception: Throwable =>
+        new IllegalStateException("Failed to initialize polyglot ruby context", exception)
+          .printStackTrace(System.err)
+    }
+  }.start()
 
   def apply[F[_]: Async](context: Context): F[Linguist[F]] =
     Semaphore[F](1).map(lock => new GraalVmRubyLinguist[F](lock.permit.as(context.asRight)))
