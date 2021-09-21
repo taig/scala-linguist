@@ -83,25 +83,33 @@ final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Either[Throwable, Co
 object GraalVmRubyLinguist {
   // This is a costly hack around context initialization issues that seem to be caused by sbt's class loader layering
   // mechanism when executing tests
+  @volatile private var ready: Either[Throwable, Boolean] = Right(false)
+
   new Thread() {
     override def run(): Unit = try {
       val context = Context.create("ruby")
       context.initialize("ruby")
       context.close()
-    } catch {
-      case exception: Throwable =>
-        new IllegalStateException("Failed to initialize polyglot ruby context", exception)
-          .printStackTrace(System.err)
-    }
+      ready = Right(true)
+    } catch { case throwable: Throwable => ready = Left(throwable) }
   }.start()
 
+  private def awaitInitialization[F[_]](implicit F: Sync[F]): F[Unit] =
+    if (ready.contains(true)) F.unit
+    else
+      F.blocking { while (ready.contains(false)) {}; ready }.flatMap {
+        case Right(true)     => F.unit
+        case Left(throwable) => F.raiseError(throwable)
+        case Right(false)    => F.raiseError(new IllegalStateException("Unreachable"))
+      }
+
   def apply[F[_]: Async](context: Context): F[Linguist[F]] =
-    Semaphore[F](1).map(lock => new GraalVmRubyLinguist[F](lock.permit.as(context.asRight)))
+    awaitInitialization[F] *> Semaphore[F](1).map(lock => new GraalVmRubyLinguist[F](lock.permit.as(context.asRight)))
 
   def default[F[_]: Async]: Resource[F, Linguist[F]] = pooled(1)
 
   def pooled[F[_]: Async](size: Int): Resource[F, Linguist[F]] =
-    Resource.eval(Queue.unbounded[F, Either[Throwable, Context]]).flatMap { queue =>
+    Resource.eval(awaitInitialization[F] *> Queue.unbounded[F, Either[Throwable, Context]]).flatMap { queue =>
       val contexts = Resource.make(queue.take)(queue.offer)
       List
         .fill(size)(context[F].attempt)
