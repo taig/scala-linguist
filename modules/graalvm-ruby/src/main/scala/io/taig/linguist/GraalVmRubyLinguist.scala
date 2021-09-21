@@ -7,8 +7,9 @@ import org.graalvm.polyglot.{Context, PolyglotAccess, Value}
 
 import java.nio.file.Path
 
-final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Context])(implicit F: Sync[F]) extends Linguist[F] {
-  override val languages: F[List[Linguist.Language]] = contexts.use { context =>
+final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Either[Throwable, Context]])(implicit F: Sync[F])
+    extends Linguist[F] {
+  override val languages: F[List[Linguist.Language]] = contexts.rethrow.use { context =>
     F.blocking {
       val result = context.eval("ruby", "Linguist::Language.all")
 
@@ -28,7 +29,7 @@ final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Context])(implicit F
     }
   }
 
-  override def detect(path: Path, content: String): F[Option[String]] = contexts.use { context =>
+  override def detect(path: Path, content: String): F[Option[String]] = contexts.rethrow.use { context =>
     F.blocking {
       val bindings = context.getPolyglotBindings
       bindings.putMember("path", path.toString)
@@ -46,7 +47,7 @@ final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Context])(implicit F
     }
   }
 
-  override def detect(path: Path): F[List[String]] = contexts.use { context =>
+  override def detect(path: Path): F[List[String]] = contexts.rethrow.use { context =>
     F.blocking {
       val bindings = context.getPolyglotBindings
       bindings.putMember("path", path.toString)
@@ -90,14 +91,18 @@ object GraalVmRubyLinguist {
   }
 
   def apply[F[_]: Async](context: Context): F[Linguist[F]] =
-    Semaphore[F](1).map(lock => new GraalVmRubyLinguist[F](lock.permit.as(context)))
+    Semaphore[F](1).map(lock => new GraalVmRubyLinguist[F](lock.permit.as(context.asRight)))
 
   def default[F[_]: Async]: Resource[F, Linguist[F]] = pooled(1)
 
   def pooled[F[_]: Async](size: Int): Resource[F, Linguist[F]] =
-    Resource.eval(Queue.unbounded[F, Context]).flatMap { queue =>
+    Resource.eval(Queue.unbounded[F, Either[Throwable, Context]]).flatMap { queue =>
       val contexts = Resource.make(queue.take)(queue.offer)
-      List.fill(size)(context[F]).parTraverse_(_.evalMap(queue.offer)).start.as(new GraalVmRubyLinguist[F](contexts))
+      List
+        .fill(size)(context[F].attempt)
+        .parTraverse_(_.evalMap(queue.offer))
+        .start
+        .as(new GraalVmRubyLinguist[F](contexts))
     }
 
   def context[F[_]](implicit F: Sync[F]): Resource[F, Context] = Resource.fromAutoCloseable {
