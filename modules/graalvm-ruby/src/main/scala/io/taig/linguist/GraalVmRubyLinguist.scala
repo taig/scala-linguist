@@ -1,11 +1,11 @@
 package io.taig.linguist;
 
-import java.nio.file.Path
-
 import cats.effect.std.{Queue, Semaphore}
 import cats.effect.{Async, Resource, Sync}
 import cats.syntax.all._
 import org.graalvm.polyglot.{Context, PolyglotAccess, Value}
+
+import java.nio.file.Path
 
 final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Context])(implicit F: Sync[F]) extends Linguist[F] {
   override val languages: F[List[Linguist.Language]] = contexts.use { context =>
@@ -82,11 +82,8 @@ final class GraalVmRubyLinguist[F[_]](contexts: Resource[F, Context])(implicit F
 object GraalVmRubyLinguist {
   // This is a hack around context initialization issues that seem to be caused by sbt's class loader layering
   // mechanism when executing tests
-  try {
-    val context = Context.create("ruby")
-    context.initialize("ruby")
-    context.close()
-  } catch {
+  try Context.create("ruby").close()
+  catch {
     case exception: Throwable =>
       new IllegalStateException("Failed to initialize polyglot ruby context", exception)
         .printStackTrace(System.err)
