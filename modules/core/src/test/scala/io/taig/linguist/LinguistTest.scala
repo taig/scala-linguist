@@ -4,7 +4,6 @@ import java.nio.file.Paths
 
 import cats.effect.IO
 import cats.syntax.all._
-import cats.syntax.parallel.catsSyntaxParallelTraverse1
 import munit.CatsEffectSuite
 
 abstract class LinguistTest extends CatsEffectSuite {

@@ -35,5 +35,5 @@ final class DefaultGraalVmRubyLinguistIntegrationTest extends GraalVmRubyLinguis
 }
 
 final class PooledGraalVmRubyLinguistIntegrationTest extends GraalVmRubyLinguistIntegrationTest {
-  override val resource: Resource[IO, Linguist[IO]] = GraalVmRubyLinguist.pooled[IO](size = 5)
+  override val resource: Resource[IO, Linguist[IO]] = GraalVmRubyLinguist.pooled[IO](size = 2)
 }
