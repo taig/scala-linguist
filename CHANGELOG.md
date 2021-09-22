@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.0.14
+
+_2021-09-22_
+
+ * Propagate context initialization errors
+ * Change `default` initialization to `pooled(1)` to leverage asynchronous start
+ * Improve truffle ruby init hack to run in the background
+ * Migrate tests to munit fixtures
+ * Upgrade to cats-effect 3.2.9
+
 ## 0.0.13
 
 _2021-09-20_
