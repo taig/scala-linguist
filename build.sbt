@@ -1,4 +1,5 @@
 val Version = new {
+  val Cats = "2.6.1"
   val CatsEffect = "3.2.9"
   val Munit = "0.7.29"
   val MunitCatsEffect = "1.0.5"
@@ -20,7 +21,7 @@ lazy val root = project
   .settings(
     name := "scala-linguist"
   )
-  .aggregate(core.jvm, core.js, graalvmRuby, benchmarks)
+  .aggregate(core.jvm, core.js, graalvmRuby, naive.jvm, naive.js, benchmarks)
 
 lazy val core = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
@@ -28,7 +29,8 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
   .settings(
     name := "scala-linguist-core",
     libraryDependencies ++=
-      "org.scalameta" %%% "munit" % Version.Munit % "test" ::
+      "org.typelevel" %%% "cats-core" % Version.Cats ::
+        "org.scalameta" %%% "munit" % Version.Munit % "test" ::
         "org.typelevel" %%% "cats-effect" % Version.CatsEffect % "test" ::
         "org.typelevel" %%% "munit-cats-effect-3" % Version.MunitCatsEffect % "test" ::
         Nil
@@ -44,6 +46,14 @@ lazy val graalvmRuby = project
   )
   .dependsOn(core.jvm % "compile->compile;test->test")
 
+lazy val naive = crossProject(JVMPlatform, JSPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("modules/naive"))
+  .settings(
+    name := "scala-linguist-naive"
+  )
+  .dependsOn(core % "compile->compile;test->test")
+
 lazy val benchmarks = project
   .in(file("modules/benchmarks"))
   .enablePlugins(JmhPlugin)
@@ -51,4 +61,4 @@ lazy val benchmarks = project
   .settings(
     name := "scala-linguist-benchmarks"
   )
-  .dependsOn(graalvmRuby)
+  .dependsOn(graalvmRuby, naive.jvm)

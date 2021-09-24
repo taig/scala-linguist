@@ -1,12 +1,13 @@
 package io.taig.linguist
 
-import java.nio.file.Paths
-import java.util.concurrent.TimeUnit
-
-import cats.effect.IO
-import cats.effect.kernel.Resource
+import cats.{Id => Identity}
+import cats.arrow.FunctionK
+import cats.effect.{IO, Resource}
 import cats.effect.unsafe.implicits.global
 import org.openjdk.jmh.annotations._
+
+import java.nio.file.Paths
+import java.util.concurrent.TimeUnit
 
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @BenchmarkMode(Array(Mode.Throughput))
@@ -58,4 +59,10 @@ class GraalVmRubyDefaultDetectBenchmark extends DetectBenchmark {
 
 class GraalVmRubyPooledDetectBenchmark extends DetectBenchmark {
   override val linguist: Resource[IO, Linguist[IO]] = GraalVmRubyLinguist.pooled[IO](size = 4)
+}
+
+class NaiveDetectBenchmark extends DetectBenchmark {
+  override val linguist: Resource[IO, Linguist[IO]] = Resource.pure(NaiveLinguist.mapK(new FunctionK[Identity, IO] {
+    override def apply[A](fa: Identity[A]): IO[A] = IO.pure(fa)
+  }))
 }
