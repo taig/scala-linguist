@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.15
+
+_2021-09-25_
+
+ * Add naive module which works on the JVM and with ScalaJS (#5)
+
 ## 0.0.14
 
 _2021-09-22_
