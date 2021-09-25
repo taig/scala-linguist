@@ -16,7 +16,7 @@ abstract class LinguistTest extends CatsEffectSuite {
       languages.traverse { language =>
         language.extensions.traverse { extension =>
           linguist().detect(Paths.get(s"Main.$extension")).map { languages =>
-            assert(languages.contains(language.name))
+            assert(languages.contains(language.name), s"${language.name} with .$extension")
           }
         }
       }
@@ -25,26 +25,38 @@ abstract class LinguistTest extends CatsEffectSuite {
 
   test("Detect with code: Java") {
     linguist()
-      .detect(Paths.get("Main.java"), HelloWord.Java)
+      .detect(Paths.get("Main.java"), Samples.Java)
       .map(obtained => assertEquals(obtained, expected = Some("Java")))
   }
 
   test("Detect with code: JavaScript") {
     linguist()
-      .detect(Paths.get("main.js"), HelloWord.JavaScript)
+      .detect(Paths.get("main.js"), Samples.JavaScript)
       .map(obtained => assertEquals(obtained, expected = Some("JavaScript")))
   }
 
   test("Detect with code: Scala") {
     linguist()
-      .detect(Paths.get("Main.scala"), HelloWord.Scala)
+      .detect(Paths.get("Main.scala"), Samples.Scala)
       .map(obtained => assertEquals(obtained, expected = Some("Scala")))
   }
 
   test("Detect with code: MATLAB") {
     linguist()
-      .detect(Paths.get("Main.m"), HelloWord.MatLab)
+      .detect(Paths.get("Main.m"), Samples.Matlab)
       .map(obtained => assertEquals(obtained, expected = Some("MATLAB")))
+  }
+
+  test("Detect with code: Objective-C") {
+    linguist()
+      .detect(Paths.get("Main.m"), Samples.ObjectiveC)
+      .map(obtained => assertEquals(obtained, expected = Some("Objective-C")))
+  }
+
+  test("Detect with code: C++") {
+    linguist()
+      .detect(Paths.get("Main.h"), Samples.Cpp)
+      .map(obtained => assertEquals(obtained, expected = Some("C++")))
   }
 
   test("Detect with path: Java") {
@@ -54,9 +66,9 @@ abstract class LinguistTest extends CatsEffectSuite {
   }
 
   test("concurrent access") {
-    val java = List.fill(500)(("Main.java", HelloWord.Java))
-    val javascript = List.fill(500)(("main.js", HelloWord.JavaScript))
-    val scala = List.fill(500)(("Main.scala", HelloWord.Scala))
+    val java = List.fill(500)(("Main.java", Samples.Java))
+    val javascript = List.fill(500)(("main.js", Samples.JavaScript))
+    val scala = List.fill(500)(("Main.scala", Samples.Scala))
     val all = java ++ javascript ++ scala
 
     all
