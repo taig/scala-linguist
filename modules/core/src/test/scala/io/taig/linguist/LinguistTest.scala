@@ -71,6 +71,12 @@ abstract class LinguistTest extends CatsEffectSuite {
       .map(obtained => assertEquals(obtained, expected = List("Go")))
   }
 
+  test("Detect with path: Html") {
+    linguist()
+      .detect(Paths.get("index.html"))
+      .map(obtained => assertEquals(obtained, expected = List("HTML")))
+  }
+
   test("concurrent access") {
     val java = List.fill(500)(("Main.java", Samples.Java))
     val javascript = List.fill(500)(("main.js", Samples.JavaScript))

@@ -19,7 +19,7 @@ object Languages {
   val Go: Linguist.Language = Linguist.Language("Go", List("go"))
   val Groovy: Linguist.Language = Linguist.Language("Groovy", List("groovy"))
   val Haskell: Linguist.Language = Linguist.Language("Haskell", List("hs"))
-  val Html: Linguist.Language = Linguist.Language("Html", List("html", "htm"))
+  val Html: Linguist.Language = Linguist.Language("HTML", List("html", "htm"))
   val Java: Linguist.Language = Linguist.Language("Java", List("java"))
   val JavaScript: Linguist.Language = Linguist.Language("JavaScript", List("js"))
   val Jsonnet: Linguist.Language = Linguist.Language("Jsonnet", List("jsonnet", "libsonnet"))
