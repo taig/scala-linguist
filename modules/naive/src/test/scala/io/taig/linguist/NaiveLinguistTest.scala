@@ -1,14 +1,10 @@
 package io.taig.linguist
 
-import cats.{Id => Identity}
-import cats.arrow.FunctionK
 import cats.effect.IO
 
 final class NaiveLinguistTest extends LinguistTest {
   override val linguist: Fixture[Linguist[IO]] = new Fixture[Linguist[IO]]("linguist") {
-    val instance: Linguist[IO] = NaiveLinguist.mapK(new FunctionK[Identity, IO] {
-      override def apply[A](fa: Identity[A]): IO[A] = IO.pure(fa)
-    })
+    val instance: Linguist[IO] = NaiveLinguist[IO]
 
     override def apply(): Linguist[IO] = instance
   }

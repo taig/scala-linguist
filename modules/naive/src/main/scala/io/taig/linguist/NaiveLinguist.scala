@@ -1,6 +1,8 @@
 package io.taig.linguist
 
-import cats.{Id => Identity}
+import cats.arrow.FunctionK
+import cats.syntax.all._
+import cats.{Applicative, Id => Identity}
 
 import java.nio.file.Path
 import java.util.regex.Pattern
@@ -53,6 +55,10 @@ object NaiveLinguist extends Linguist[Identity] {
       )
     )
   }
+
+  def apply[F[_]: Applicative]: Linguist[F] = mapK(new FunctionK[Identity, F] {
+    override def apply[A](fa: A): F[A] = fa.pure[F]
+  })
 
   override def detect(path: Path, content: String): Option[String] = {
     val extension = this.extension(path)
