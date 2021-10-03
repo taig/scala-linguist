@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.16
+
+_2021-10-03_
+
+ * Add support for html detection
+ * Upgrade to munit-cats-effect 1.0.6
+
 ## 0.0.15
 
 _2021-09-25_
