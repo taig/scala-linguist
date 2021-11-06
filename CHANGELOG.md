@@ -2,6 +2,8 @@
 
 ## 0.0.18
 
+_2021-11-06_
+
  * Add NaiveLinguist.apply[F] to lift into applicative F
  * Upgrade to scala 3.1.0
  * Upgrade to sbt-scalajs 1.7.1
@@ -9,6 +11,8 @@
  * Upgrade to scala 2.13.7
 
 ## 0.0.17
+
+_2021-10-03_
 
  * Add support for html detection
  * Upgrade to munit-cats-effect 1.0.6
