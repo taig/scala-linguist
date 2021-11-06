@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.18
+
+ * Add NaiveLinguist.apply[F] to lift into applicative F
+ * Upgrade to scala 3.1.0
+ * Upgrade to sbt-scalajs 1.7.1
+ * Upgrade to sbt-houserules 0.3.15
+ * Upgrade to scala 2.13.7
+
 ## 0.0.17
 
  * Add support for html detection
