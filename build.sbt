@@ -1,6 +1,6 @@
 val Version = new {
   val Cats = "2.7.0"
-  val CatsEffect = "3.3.7"
+  val CatsEffect = "3.3.8"
   val Munit = "0.7.29"
   val MunitCatsEffect = "1.0.7"
   val Scala2 = "2.13.8"
